@@ -9,7 +9,8 @@
     "dev": "tsx src/cli.ts",
     "build": "rslib build",
     "test": "vitest",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "uninstall": "pnpm unlink --global commit-lint-gen"
   },
   "keywords": [],
   "author": "Dhodo",
