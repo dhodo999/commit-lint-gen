@@ -91,7 +91,7 @@ From there, just commit as usual:
 
 ```bash
 git add .
-git commit
+clg generate
 ```
 
 The tool will automatically generate a draft commit message. Press **Enter** to accept and commit, or use the interactive options:
