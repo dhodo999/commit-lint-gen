@@ -9,8 +9,8 @@ function formatMessage(type: string, scope: string | undefined, description: str
     return scope ? `${type}(${scope}): ${description}` : `${type}: ${description}`;
 }
 
-async function generateCommit(git: SimpleGit, config: Config, useAI: boolean) {
-    if (useAI && config.apiKey) {
+async function generateCommit(git: SimpleGit, config: Config, useAI: boolean, forceHeuristic?: boolean) {
+    if (!forceHeuristic && useAI && config.apiKey) {
         try {
             const result = await generateAICommit(git, config);
             return { ...result, confidence: 'high' as const };
@@ -31,11 +31,19 @@ async function generateCommit(git: SimpleGit, config: Config, useAI: boolean) {
  * through `clg generate` without hook, commitMsgFile undefined -> end result
  * only printed to stdout, not written to any file.
  */
-export async function runInteractiveGenerate(git: SimpleGit, config: Config, commitMsgFile?: string): Promise<void> {
+export async function runInteractiveGenerate(git: SimpleGit, config: Config, commitMsgFile?: string, autoYes?: boolean, forceHeuristic?: boolean): Promise<void> {
     const useAI = !!config.apiKey;
-    const initial = await generateCommit(git, config, useAI);
+    const initial = await generateCommit(git, config, useAI, forceHeuristic);
     let draft = formatMessage(initial.type, initial.scope, initial.description);
     let confidence: string | undefined = initial.confidence;
+
+    // Auto-commit mode: commit immediately without interactive prompt
+    if (autoYes) {
+        await git.commit(draft);
+        console.log(`Committed: ${draft}`);
+        console.log(`\nDon't forget to push your commits!`);
+        return;
+    }
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
@@ -45,7 +53,10 @@ export async function runInteractiveGenerate(git: SimpleGit, config: Config, com
             if (commitMsgFile) {
                 writeFileSync(commitMsgFile, draft + '\n');
             } else {
-                console.log(draft);
+                // Interactive mode: commit with the generated message
+                await git.commit(draft);
+                console.log(`\nCommitted: ${draft}`);
+                console.log(`\nDon't forget to push your commits!`);
             }
             return;
         }
@@ -60,7 +71,7 @@ export async function runInteractiveGenerate(git: SimpleGit, config: Config, com
         }
 
         if (action === 'regenerate') {
-            const result = await generateCommit(git, config, useAI);
+            const result = await generateCommit(git, config, useAI, forceHeuristic);
             draft = formatMessage(result.type, result.scope, result.description);
             confidence = result.confidence;
             continue;
