@@ -3,15 +3,14 @@ import prompts from 'prompts';
 
 export type CommitAction = 'accept' | 'edit' | 'regenerate' | 'manual' | 'cancel';
 
-/**
- * Showing draft commit message and waiting for user's keystroke
- * (not waiting for Enter button, except for "accept").
- *
- * Technique: stdin set into raw mode, each time a button is pressed
- * it goes to handler without buffered until Enter button is pressed.
- */
+function clearScreen(): void {
+    console.clear();
+}
+
 export function promptCommitAction(message: string, confidence?: string): Promise<CommitAction> {
     return new Promise((resolve) => {
+        clearScreen();
+
         console.log('\nSuggested commit message:');
         console.log(`  ${chalk.green(message)}`);
         if (confidence) {
@@ -26,11 +25,8 @@ export function promptCommitAction(message: string, confidence?: string): Promis
 
         const stdin = process.stdin;
 
-        // IF stdin is not TTY (e.g called from non-interactive script/CI),
-        // raw mode won't be able to be used — fallback: automatically accept draft
-        // so that commits won't get stuck waiting for inputs.
         if (!stdin.isTTY) {
-            console.log('(non-interactive shell detected, draft accepted automatically)');
+            console.log('(non-interactive detected, draft automatically accepted)');
             resolve('accept');
             return;
         }
@@ -47,7 +43,7 @@ export function promptCommitAction(message: string, confidence?: string): Promis
         };
 
         const onData = (key: string) => {
-            // Ctrl+C for force exit even on raw mode
+            // Ctrl+C force-exit raw mode
             if (key === '\u0003') {
                 cleanup();
                 process.exit(130);
@@ -69,8 +65,6 @@ export function promptCommitAction(message: string, confidence?: string): Promis
                 );
                 return;
             }
-
-            // Unknown button: ignore, waiting for next input
         };
 
         stdin.on('data', onData);
@@ -82,6 +76,8 @@ export function promptCommitAction(message: string, confidence?: string): Promis
  * in the terminal (use normal text prompt, waiting Enter button for submit).
  */
 export async function editDraft(message: string): Promise<string | null> {
+    clearScreen();
+
     const response = await prompts({
         type: 'text',
         name: 'message',
@@ -98,6 +94,8 @@ export async function editDraft(message: string): Promise<string | null> {
  * Used as total fallback if user did not trust draft AI/heuristik.
  */
 export async function manualEntry(): Promise<string | null> {
+    clearScreen();
+
     const response = await prompts([
         {
             type: 'select',
