@@ -66,11 +66,12 @@ describe('generateAICommit', () => {
     }));
 
     const { generateAICommit: generateAI } = await import('../../src/generator/ai.js');
-    const configWithoutKey = { ...mockConfig, apiKey: undefined };
+    const { apiKey: _unused, ...configWithoutKey } = mockConfig;
+
     const mockGit = {
       diff: vi.fn().mockResolvedValue('diff content'),
     } as unknown as SimpleGit;
 
-    await expect(generateAI(mockGit, configWithoutKey)).rejects.toThrow('API key is required');
+    await expect(generateAI(mockGit, configWithoutKey as Config)).rejects.toThrow('API key is required');
   });
 });
