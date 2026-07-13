@@ -94,7 +94,63 @@ git add .
 git commit
 ```
 
-The tool will automatically generate a draft commit message and validate its format before the commit is accepted.
+The tool will automatically generate a draft commit message. Press **Enter** to accept and commit, or use the interactive options:
+
+- **[Enter]** - Accept and commit
+- **[e]** - Edit the message
+- **[r]** - Regenerate with a new suggestion
+- **[m]** - Manual mode (pick type/scope/description yourself)
+- **[q]** - Cancel
+
+#### CLI Commands
+
+```bash
+# Generate commit message interactively (AI with fallback to heuristic)
+clg generate
+
+# Auto-commit without interactive prompt
+clg generate -y
+
+# Force heuristic mode (skip AI even if API key exists)
+clg generate -H
+
+# Validate a commit message
+clg lint "feat(api): add user authentication"
+
+# Install git hook
+clg init
+
+# Remove git hook
+clg uninstall
+```
+
+## Uninstalling
+
+**1. Remove git hooks from any repositories:**
+
+```bash
+cd /path/to/your-project
+clg uninstall
+```
+
+**2. Unlink the global CLI:**
+
+```bash
+cd /path/to/commit-lint-gen
+pnpm uninstall
+```
+
+Or from anywhere:
+
+```bash
+pnpm unlink --global commit-lint-gen
+```
+
+**3. Verify:**
+
+```bash
+clg --version  # Should show "command not found"
+```
 
 ## Development
 
