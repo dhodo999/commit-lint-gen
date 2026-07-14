@@ -78,13 +78,22 @@ pnpm link --global .
 
 **To enable AI-powered generation**, you need to provide your own API key. We recommend using [Groq](https://groq.com/) as it offers a free tier with fast inference.
 
-**Getting a free Groq API key:**
-1. Sign up at [console.groq.com](https://console.groq.com/)
-2. Navigate to API Keys section
-3. Create a new API key
-4. Copy the key
+**Quick Setup (Recommended):**
 
-**Configuration methods:**
+Run the interactive configuration wizard:
+
+```bash
+npx commitlg@latest config
+```
+
+This will guide you through:
+- Choosing your AI provider (Groq/OpenAI)
+- Entering your API key
+- Selecting a model
+
+The wizard creates a `.commitlintgenrc.json` file in your project.
+
+**Manual Configuration:**
 
 **Method 1: Project-level config file** (recommended for team projects)
 
@@ -188,6 +197,9 @@ clg lint "feat(api): add user authentication"
 clg audit                       # Analyze last 20 commits (default)
 clg audit -n 50                 # Analyze last 50 commits
 clg audit --number 10           # Analyze last 10 commits
+
+# Interactive configuration setup
+clg config                      # Guided setup for AI provider and API key
 
 # Install git hook
 clg init
