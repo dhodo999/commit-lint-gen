@@ -1,5 +1,5 @@
 {
-  "name": "@dhodo/clg",
+  "name": "commitlg",
   "version": "1.0.0",
   "description": "A simple git commit generator",
   "bin": {
