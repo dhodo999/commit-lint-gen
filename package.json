@@ -1,6 +1,6 @@
 {
   "name": "commitlg",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "A simple git commit generator",
   "bin": {
     "clg": "./dist/cli.js"
@@ -12,9 +12,20 @@
     "lint": "eslint src",
     "uninstall": "pnpm unlink --global commit-lint-gen"
   },
-  "keywords": [],
+  "keywords": [
+    "git",
+    "commit",
+    "conventional-commits",
+    "commitlint",
+    "commit-message",
+    "git-hooks",
+    "ai",
+    "groq",
+    "cli",
+    "commit-generator"
+  ],
   "author": "Dhodo",
-  "license": "ISC",
+  "license": "MIT",
   "type": "module",
   "dependencies": {
     "chalk": "^5.6.2",
