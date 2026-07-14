@@ -74,32 +74,59 @@ pnpm link --global .
 
 ### Configuration
 
-Copy `.env.example` to `.env` and fill in your AI provider's API key (optional — the tool still works without it via heuristic mode):
+**The tool works out of the box without any configuration** — it uses heuristic mode (pattern-based analysis) to generate commit messages.
 
-```bash
-cp .env.example .env
-```
+**To enable AI-powered generation**, you need to provide your own API key. We recommend using [Groq](https://groq.com/) as it offers a free tier with fast inference.
 
-```
-GROQ_API_KEY=your_api_key_here
-```
+**Getting a free Groq API key:**
+1. Sign up at [console.groq.com](https://console.groq.com/)
+2. Navigate to API Keys section
+3. Create a new API key
+4. Copy the key
 
-Adjust the provider and model in `.commitlintgenrc.json` as needed:
+**Configuration methods:**
+
+**Method 1: Project-level config file** (recommended for team projects)
+
+Create `.commitlintgenrc.json` in your project root:
 
 ```json
 {
+  "apiKey": "your_groq_api_key_here",
   "aiProvider": "groq",
   "baseURL": "https://api.groq.com/openai/v1",
   "model": "qwen/qwen3.6-27b"
 }
 ```
 
-### Build & Link Locally
+**Method 2: Environment variable** (for personal/local use)
 
 ```bash
-pnpm build
-pnpm link --global .
+# Linux/Mac
+export GROQ_API_KEY=your_api_key_here
+
+# Windows (PowerShell)
+$env:GROQ_API_KEY="your_api_key_here"
+
+# Or create a .env file
+echo "GROQ_API_KEY=your_api_key_here" > .env
 ```
+
+**Using other AI providers:**
+
+The tool supports any OpenAI-compatible API. To use a different provider, adjust your config:
+
+```json
+{
+  "apiKey": "your_api_key",
+  "aiProvider": "openai",
+  "baseURL": "https://api.openai.com/v1",
+  "model": "gpt-4"
+}
+```
+
+**Without API key:** The tool falls back to heuristic mode, which analyzes file patterns to generate commit messages.
+
 
 ### Usage
 
