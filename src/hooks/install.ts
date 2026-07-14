@@ -25,7 +25,8 @@ COMMIT_SOURCE=$2
 
 # Only run for regular commits (not merges, amends, etc.)
 if [ -z "$COMMIT_SOURCE" ]; then
-  clg generate "$COMMIT_MSG_FILE"
+  # Set GIT_EDITOR to true to skip opening the editor after message generation
+  GIT_EDITOR=true clg generate "$COMMIT_MSG_FILE"
 fi
 `;
 
