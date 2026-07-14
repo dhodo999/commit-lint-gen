@@ -3,15 +3,29 @@
   "version": "1.1.0",
   "description": "A simple git commit generator",
   "packageManager": "pnpm@11.12.0",
+  "engines": {
+    "node": ">=22"
+  },
   "bin": {
     "clg": "./dist/cli.js"
   },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dhodo999/commit-lint-gen.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dhodo999/commit-lint-gen/issues"
+  },
+  "homepage": "https://github.com/dhodo999/commit-lint-gen#readme",
   "scripts": {
     "dev": "tsx src/cli.ts",
     "build": "rslib build",
     "test": "vitest",
     "lint": "eslint src",
-    "uninstall": "pnpm unlink --global commit-lint-gen"
+    "uninstall": "pnpm unlink --global commitlg"
   },
   "keywords": [
     "git",
