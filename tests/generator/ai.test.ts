@@ -35,6 +35,7 @@ const mockConfig: Config = {
 describe('generateAICommit', () => {
   it('should generate commit from AI', async () => {
     const mockGit = {
+      checkIsRepo: vi.fn().mockResolvedValue(true),
       diff: vi.fn().mockResolvedValue('diff content'),
     } as unknown as SimpleGit;
 
@@ -47,6 +48,7 @@ describe('generateAICommit', () => {
 
   it('should throw error when no staged changes', async () => {
     const mockGit = {
+      checkIsRepo: vi.fn().mockResolvedValue(true),
       diff: vi.fn().mockResolvedValue(''),
     } as unknown as SimpleGit;
 
