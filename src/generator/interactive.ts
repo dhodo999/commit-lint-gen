@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import prompts from 'prompts';
+import { createInterface } from 'node:readline';
 
 export type CommitAction = 'accept' | 'edit' | 'regenerate' | 'manual' | 'cancel';
 
@@ -77,16 +78,15 @@ export function promptCommitAction(message: string, confidence?: string): Promis
  */
 export async function editDraft(message: string): Promise<string | null> {
     clearScreen();
-
-    const response = await prompts({
-        type: 'text',
-        name: 'message',
-        message: 'Edit commit message',
-        initial: message,
+    return new Promise((resolve) => {
+        const rl = createInterface({ input: process.stdin, output: process.stdout, terminal: true });
+        rl.question('Edit commit message: ', (answer) => {
+            rl.close();
+            resolve(answer || message);
+        });
+        rl.write(message);
+        rl.once('close', () => resolve(null));
     });
-
-    // response.message will be undefined if user cancel (Ctrl+C) in the middle of prompt
-    return typeof response.message === 'string' ? response.message : null;
 }
 
 /**
