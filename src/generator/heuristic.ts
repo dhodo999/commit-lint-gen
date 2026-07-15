@@ -263,6 +263,11 @@ function calculateConfidence(changes: FileChange[], type: string, scope?: string
 }
 
 export async function generateHeuristicCommit(git: SimpleGit): Promise<HeuristicResult> {
+  const isRepo = await git.checkIsRepo();
+  if (!isRepo) {
+    throw new Error('Not a git repository. Run this command from the root of a git repository.');
+  }
+
   const diffSummary = await git.diff(['--stat', '--cached']);
 
   if (!diffSummary || diffSummary.trim() === '') {

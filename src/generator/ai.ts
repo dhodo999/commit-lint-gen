@@ -11,6 +11,11 @@ export interface AIResult {
 export async function generateAICommit(git: SimpleGit, config: Config, previousMessage?: string): Promise<AIResult> {
     const provider = createAIProvider(config);
 
+    const isRepo = await git.checkIsRepo();
+    if (!isRepo) {
+        throw new Error('Not a git repository. Run this command from the root of a git repository.');
+    }
+
     const diff = await git.diff(['--cached']);
 
     if (!diff || diff.trim() === '') {
