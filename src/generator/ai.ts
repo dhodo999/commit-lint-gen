@@ -37,7 +37,7 @@ Rules:
 - description: Short imperative phrase (e.g., "add feature" not "added" or "adds")
 ${previousMessage ? `- Do NOT reuse or slightly rephrase this previous message: "${previousMessage}". Use a different description.` : ''}
 Git diff:
-${diff.slice(0, 8000)}
+${truncateDiff(diff, 8000)}
 
 Output the JSON object only:`;
 
@@ -91,4 +91,45 @@ Output the JSON object only:`;
     } catch (error) {
         throw new Error(`Failed to parse AI response: ${error instanceof Error ? error.message : String(error)}`)
     }
+}
+
+export function truncateDiff(diff: string, budget = 8000): string {
+    if (diff.length <= budget) {
+        return diff;
+    }
+
+    const parts = diff.split(/(?=diff --git)/);
+    const totalFiles = parts.length;
+    let accumulated = '';
+    let includedCount = 0;
+
+    for (let i = 0; i < totalFiles; i++) {
+        const part = parts[i] ?? '';
+        const isLast = i === totalFiles - 1;
+        const suffix = isLast ? '' : `\n\n... ${totalFiles - (i + 1)} more files changed, not shown`;
+        const candidate = accumulated + part + suffix;
+
+        if (candidate.length <= budget) {
+            accumulated += part;
+            includedCount++;
+        } else {
+            break;
+        }
+    }
+
+    if (includedCount === 0) {
+        const isLast = totalFiles === 1;
+        const suffix = isLast ? '' : `\n\n... ${totalFiles - 1} more files changed, not shown`;
+        const availableBudget = budget - suffix.length;
+        const firstPart = parts[0] ?? '';
+        const slicedPart = firstPart.slice(0, Math.max(0, availableBudget));
+        return slicedPart + suffix;
+    }
+
+    if (includedCount < totalFiles) {
+        const suffix = `\n\n... ${totalFiles - includedCount} more files changed, not shown`;
+        return accumulated + suffix;
+    }
+
+    return accumulated;
 }
