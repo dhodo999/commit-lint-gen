@@ -18,6 +18,7 @@ The result: a consistent, readable commit history that's ready to power automati
 - **Zero-dependency git hook** — installs native hooks without extra packages like husky
 - **Interactive mode** — accept, edit, or regenerate the draft before finalizing the commit
 - **Simple configuration** — set your provider, model, and lint rules in a single `.commitlintgenrc.json` file
+- **Doctor command** — diagnose your environment, config, and API connection with `clg doctor`
 
 ## Tech Stack
 
@@ -37,7 +38,7 @@ The result: a consistent, readable commit history that's ready to power automati
 
 ### Prerequisites
 
-- Node.js version 20 or newer
+- Node.js version 22 or newer
 - pnpm (`npm install -g pnpm`)
 - Git
 
@@ -201,6 +202,9 @@ clg audit --number 10           # Analyze last 10 commits
 # Interactive configuration setup
 clg config                      # Guided setup for AI provider and API key
 
+# Check environment, config, and API connection
+clg doctor
+
 # Install git hook
 clg init
 
@@ -243,7 +247,7 @@ clg uninstall
 
 ```bash
 cd /path/to/commit-lint-gen
-pnpm uninstall
+pnpm run uninstall
 ```
 
 Or from anywhere:
