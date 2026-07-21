@@ -10,6 +10,7 @@ import { validateCommitMessage } from './linter/validate.js';
 import { installGitHook, uninstallGitHook } from './hooks/install.js';
 import { analyzeCommitHistory, formatAnalysisReport } from './audit/analyzer.js';
 import { interactiveSetup } from './config/setup.js';
+import { runDoctor } from './doctor/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkg = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf-8')) as {
@@ -120,6 +121,18 @@ program
       await interactiveSetup();
     } catch (error) {
       console.error('Error during configuration setup:', error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('doctor')
+  .description('Check environment, config, and API connection')
+  .action(async () => {
+    try {
+      await runDoctor(config);
+    } catch (error) {
+      console.error('Error running doctor:', error);
       process.exit(1);
     }
   });
