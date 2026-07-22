@@ -1,6 +1,5 @@
 import chalk from 'chalk';
 import prompts from 'prompts';
-import { createInterface } from 'node:readline';
 
 export type CommitAction = 'accept' | 'edit' | 'regenerate' | 'manual' | 'cancel';
 
@@ -44,7 +43,6 @@ export function promptCommitAction(message: string, confidence?: string): Promis
         };
 
         const onData = (key: string) => {
-            // Ctrl+C force-exit raw mode
             if (key === '\u0003') {
                 cleanup();
                 process.exit(130);
@@ -66,6 +64,7 @@ export function promptCommitAction(message: string, confidence?: string): Promis
                 );
                 return;
             }
+            // ignore semua key lain — jangan biarkan tercetak
         };
 
         stdin.on('data', onData);
@@ -76,16 +75,65 @@ export function promptCommitAction(message: string, confidence?: string): Promis
  * Edit mode: show draft as initial value that user can edit
  * in the terminal (use normal text prompt, waiting Enter button for submit).
  */
-export async function editDraft(message: string): Promise<string | null> {
+export function editDraft(message: string): Promise<string | null> {
     clearScreen();
     return new Promise((resolve) => {
-        const rl = createInterface({ input: process.stdin, output: process.stdout, terminal: true });
-        rl.question('Edit commit message: ', (answer) => {
-            rl.close();
-            resolve(answer || message);
-        });
-        rl.write(message);
-        rl.once('close', () => resolve(null));
+        const stdin = process.stdin;
+        let buf = message;
+        let cursor = message.length;
+
+        const render = () => {
+            process.stdout.write('\x1b[2J\x1b[H');
+            process.stdout.write('\nEdit commit message:\n');
+            process.stdout.write(`  ${chalk.green(buf)}\n`);
+            process.stdout.write(chalk.dim('\n[Enter] confirm   [Esc] cancel\n'));
+            process.stdout.write('> ' + buf + '\x1b[K');
+            const overshoot = buf.length - cursor;
+            if (overshoot > 0) process.stdout.write(`\x1b[${overshoot}D`);
+        };
+
+        stdin.setRawMode(true);
+        stdin.resume();
+        stdin.setEncoding('utf8');
+        render();
+
+        const cleanup = () => {
+            stdin.setRawMode(false);
+            stdin.pause();
+            stdin.removeListener('data', onData);
+            process.stdout.write('\n');
+        };
+
+        const onData = (key: string) => {
+            if (key === '\u0003') { cleanup(); process.exit(130); }
+
+            if (key === '\r' || key === '\n') {
+                cleanup();
+                resolve(buf.trim() || message);
+                return;
+            }
+
+            if (key === '\u001b') { cleanup(); resolve(null); return; } // ESC = cancel
+
+            if (key === '\u007f' || key === '\b') { // backspace
+                if (cursor > 0) { buf = buf.slice(0, cursor - 1) + buf.slice(cursor); cursor--; }
+            } else if (key === '\x1b[D') { // left
+                if (cursor > 0) cursor--;
+            } else if (key === '\x1b[C') { // right
+                if (cursor < buf.length) cursor++;
+            } else if (key === '\x1b[H' || key === '\x01') { // home/ctrl-a
+                cursor = 0;
+            } else if (key === '\x1b[F' || key === '\x05') { // end/ctrl-e
+                cursor = buf.length;
+            } else if (key >= ' ') {
+                buf = buf.slice(0, cursor) + key + buf.slice(cursor);
+                cursor++;
+            }
+
+            render();
+        };
+
+        stdin.on('data', onData);
     });
 }
 
